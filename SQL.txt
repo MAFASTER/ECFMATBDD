@@ -1,0 +1,74 @@
+////Tester sous MySql ver 5.7.24 
+
+
+
+
+
+2.1
+Custommers:Liste des clients. La Primary est le Customernumber et sa clé étrangère salesRepEmployeeNumber en relation avec employees
+
+
+Employees:Liste des employés. La primary est employeeNumber et sa clé étrangère officeCode en relation avec Offices
+
+offices:Liste des bureaux. Le primary est officecode. Elle n'a aucune clé étrangère.
+
+orders:Liste des commandes. La primary est ordernumber et sa clé étrangère customernumber en relation avec Customers
+
+orderdetails:Liste des détails de commande avec les produit et leur quantité. La Primary est ordernumber en relation avec orders et la clé étrangère est productcode en relation avec products.
+
+
+payments:Historique des paiements. La primary est customernumber en relation avec customers et checkNumber
+
+productslines:Liste des linge de produits et leur descriptions. La primary est productLine.
+
+products:Liste de produits. La primary est Productcode et sa clé étrangère est productline en relation avec ProductLines
+
+2.2
+C'est une BDD de concessionnaire
+
+3.1 customers:122 lignes employees:23 lignes offices:7 lignes orders:64 lignes payments:273 lignes products:110 lignes 
+
+3.2 select productName, quantityInStock from products where productName like '%Harley%' order by quantityInStock desc;
+
+3.3 select contactFirstName from customers where contactFirstName like '_a%' order by contactFirstName;
+
+3.4 select count(*) FROM customers where contactFirstName like '_a%'; 33
+
+3.5 select productName as 'Les articles', buyPrice as 'Les prix' from products where buyPrice between 50 and 65;
+
+3.6 select sum(amount) as 'Total [07/2004]' from payments where paymentDate > '2004-07-01';
+
+3.7 select * from orderDetails where quantityOrdered >= 50 group by orderNumber;
+
+3.8 select customers.customerName  as 'Les clients sont rois' from customers
+left join orders on customers.customerNumber = orders.customerNumber
+WHERE orders.customerNumber is null;
+
+
+3.9 select lastName, firstName, employeeNumber, jobTitle from employees where officeCode is null; 0
+
+3.10 select count(DISTINCT city) from customers; 95
+ 
+3.11 select customers.customerName, customers.customernumber from payments inner join customers on payments.customerNumber = customers.customerNumber group by payments.customerNumber order by sum(amount) desc limit 1 
+select customers.customerName, sum(amount) as 'TOTO' from payments inner join customers on payments.customerNumber = customers.customerNumber group by payments.customerNumber order by sum(amount) desc
+
+3.12 select products.productCode, products.productName, sum(quantityOrdered), quantityInStock, sum(quantityOrdered*priceEach)  from orderDetails 
+inner join orders on orderDetails.orderNumber = orders.orderNumber 
+inner join products on orderDetails.productCode = products.productCode
+where orders.orderDate > 2005-01-01
+group by products.productCode
+order by products.productLine, products.productCode;
+
+3.13 select `OrdersID`, `OrderDate`,`OderStatus`, `Client name`,`Products`, `Product code`,`fus ro dah` FROM ( 
+select orders.orderNumber as 'lists', orders.orderNumber as 'OrdersID', orders.orderDate as 'OrderDate','?' as 'Product code' ,orders.status as 'OderStatus',':>' as 'fus ro dah',customers.customerName as 'Client name','-' as 'Products' from orders 
+inner join customers ON orders.customerNumber = customers.customerNumber 
+union select orderDetails.orderNumber, '-','-' ,orderDetails.productCode,'-' ,orderDetails.quantityOrdered,'-',products.productName from orderDetails 
+inner join products ON orderDetails.productCode = products.productCode ) as result order by lists
+
+////// LA 3.13 était bugger chez moi, certain resultat disparaissaient et un resultat ne voulais pas ce mettre comme il faut. seul en spammant pouvais eventuellment resoudre le soucis
+
+
+
+3.14 select customers.customerNumber  , customers.customerName, offices.city, offices.country, employees.firstName, employees.lastName, employees.jobTitle from customers
+left join employees on customers.salesRepEmployeeNumber = employees.employeeNumber
+left join offices on employees.officeCode = offices.officeCode
